@@ -139,6 +139,7 @@ public class ReglementController {
                 .addHeader("Cookie", "pga_session_id=s%3Aw05PKI6cBTmy-Fqm1qPJHj32hwVlXggg.clzIIgVNHDkRLzQbTCxDWYx1RsDS2r7XdoxbTHDhvU4")
                 .build();
         try (Response response = client.newCall(request).execute()){
+            //
             System.out.println("************** check Status reponse ************* ");
             if (!response.isSuccessful()){
                 System.out.println("************** Status reponse not Success ************* ");
