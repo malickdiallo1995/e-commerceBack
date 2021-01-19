@@ -199,43 +199,64 @@ public class ReglementController {
     }
 
     @GetMapping("/transaction/check_update")
-    public void check_update(@RequestParam String transaction_id,@RequestParam String state) {
+    public String check_update(@RequestParam String transaction_id,@RequestParam String state) throws IOException {
         System.out.println("******************* Success Given Transaction_id : ["+transaction_id+"]");
         System.out.println("******************* Success Given state : ["+state+"]");
-        if (state == "SUCCESS"){
+        if (state == "SUCCESS"){ //STATE == SUCCESS
             System.out.println("******************* Transaction SUCCESS  ************************");
-            /**
-             * Call API CHECK if IS SUCCESS
-             */
+            OkHttpClient client = new OkHttpClient().newBuilder()
+                    .build();
+            Request request = new Request.Builder()
+                    .url("https://api.paygate.africa/transactions/"+transaction_id+"/payment")
+                    .method("GET", null)
+                    .addHeader("app_id", "$2a$10$wpM4MSm.Eu1gH.04Wz0YtO") //dont change
+                    .addHeader("refresh_token", "$2a$10$afjTJVYNmIgVg.U1OTdIaOyUhLEMnbrHxm3DpQcUAblaJizU.SViC") //dont change
+                    .addHeader("Authorization", "Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJjbGllbnRfaWQiOiIzODFiODNhNmUxY2FlMmE4MzBjMDg3ZjY4NmI5MDM5NiIsImlhdCI6MTYxMDc0NTY4MSwiZXhwIjoxNjEwNzg4ODgxfQ.c7xErHWsQOf47hVDjFf6O6JBxUOBdl0n60han46YZavabJaYxbyRPwgHt1oOp72e9zzuHuIBcarcHohj-RTLQFzTI6HVxhhlzCebOYxF3Eg2zI1RQ3oqtMoP6NmrOo85moW2XtLfpZk5VR-fQmaeLNJFag3OiXsP2VYVjji--fdpF67MHrUjJdK-5g2Bt8m_IG3FthSND2Ibvsp8AN6UEh1lK2L8V-vObOquGebaa9FRNI9AAn-EkqAs9TmT6tkvgTxF7tCEV0mHRkIttfOo3Xioz9V9BvsWnyyrwrQbclFcK7r-30SM6yIe5S9xmXMfmdPbvL_4vYobOmsCEeWhEI4tPQJNI2aXSiCZ56xy1l0bFrPOsYrSxbit0xgQf2_3ZvuPCMXc3nOR-Zk8cyr4196cdQe3cLu9qcFpDsp8PcQoleEpHH6gVd44LOp26CfKiFFIwbFPADEmjrZuC0M52ahKjrlKEjEdMPAzCOHwVq39AB_ldGPnkm0UHmRX6u5BvkDg5xr7bXeD84xracrkd-ebvp4ySPi0_XM4b26nmFufrjl33wASASuSYaT9MFtWebT-vg9UyheLlCUimmWoKFyMXaigwM04gQ_qPtqWz_wJ0QMd3LaZEQnTFskdC20Wg8Zhni1MOynSAnkje9iCNT3uFomWiOUhick6kV0u_m4")
+                    .addHeader("Content-Type", "application/json")
+                    .addHeader("Cookie", "pga_session_id=s%3Aw05PKI6cBTmy-Fqm1qPJHj32hwVlXggg.clzIIgVNHDkRLzQbTCxDWYx1RsDS2r7XdoxbTHDhvU4")
+                    .build();
 
+            try (Response response = client.newCall(request).execute()){
+                System.out.println("************** check Status reponse ************* ");
+                if (!response.isSuccessful()){
+                    System.out.println("************** Status reponse not Success ************* ");
+                    System.out.println("************** Response body "+response.body().byteStream());
+                    return response.body().string() ;
+                    //throw new IOException("************* Unexpected code Not Success " + response.body().string());
+                }
 
-            /**
-             * **** IF SUCCESS IN API CHECK
-             */
-                System.out.println("******************* BOTH ARE SUCCESS ************************");
-                transactionRepository.setTransactionStateByTransactionId(transaction_id, state);
-                System.out.println("******************* After Update ************************");
-
-            /**
-             * ****** END IF
-             */
-            //*************************************************************************************
-            /**
-             * ELSE (NOT SUCCESS IN CHEK)
-             */
-                System.out.println("******************* INCOHERENCE STATE ************************");
-                state = "INCOHERENT";
-                transactionRepository.setTransactionStateByTransactionId(transaction_id, state);
-                System.out.println("******************* After Update ************************");
-            /**
-             * END IF
-             */
-
-        }else{
+            String jsonData = response.body().string();
+                try {
+                    JSONObject jsonObject = new JSONObject(jsonData);
+                    System.out.println("jsonObject status payment get" + jsonObject.getJSONObject("payment").getString("status"));
+                    String status = jsonObject.getJSONObject("payment").getString("status");
+                    if (status == "SUCCESS"){ //IF SUCCESS IN API CHECK
+                        System.out.println("******************* BOTH ARE SUCCESS ************************");
+                        transactionRepository.setTransactionStateByTransactionId(transaction_id, state);
+                        System.out.println("******************* After Update ************************");
+                        return "PAYMENT SUCCESS OK";
+                    }else{ //ELSE (NOT SUCCESS IN CHEK || INCOHERENT)
+                        System.out.println("******************* INCOHERENCE STATE ************************");
+                        state = "INCOHERENT";
+                        transactionRepository.setTransactionStateByTransactionId(transaction_id, state);
+                        System.out.println("******************* After Update ************************");
+                        return "PAYMENT SUCCESS INCOHERENT";
+                    }
+                }catch (JSONException e){ //JSON PARSE ERROR
+                    System.out.println("******************* Error JSON ***************");
+                    System.out.println(e.getMessage());
+                    return "NOT OK JSON ERROR";
+                }
+            }catch (IOException e){ //OKHTTP REQUEST ERROR
+                System.out.println("************** Error Message ************* ");
+                System.out.println(e.getMessage());
+                return "Not ok";
+            }
+        }else{ //STATE == FAILURE
             System.out.println("******************* Transaction FAILURE  ************************");
             transactionRepository.setTransactionStateByTransactionId(transaction_id, state);
             System.out.println("******************* After Update ************************");
+            return "PAYMENT FAILURE";
         }
-
     }
 }
