@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/e-commerceBack_khadyRepo.iml" filepath="$PROJECT_DIR$/.idea/e-commerceBack_khadyRepo.iml" />
+      <module fileurl="file://$PROJECT_DIR$/konexpresso.iml" filepath="$PROJECT_DIR$/konexpresso.iml" />
     </modules>
   </component>
 </project>

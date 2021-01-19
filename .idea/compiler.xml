@@ -17,16 +17,19 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
+        <module name="konexpresso" />
         <module name="e-commerce" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="e-commerce" target="1.8" />
+      <module name="konexpresso" target="1.8" />
     </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="e-commerce" options="-parameters" />
+      <module name="konexpresso" options="-parameters" />
     </option>
   </component>
 </project>

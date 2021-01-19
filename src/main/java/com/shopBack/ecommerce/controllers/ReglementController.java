@@ -202,6 +202,40 @@ public class ReglementController {
     public void check_update(@RequestParam String transaction_id,@RequestParam String state) {
         System.out.println("******************* Success Given Transaction_id : ["+transaction_id+"]");
         System.out.println("******************* Success Given state : ["+state+"]");
+        if (state == "SUCCESS"){
+            System.out.println("******************* Transaction SUCCESS  ************************");
+            /**
+             * Call API CHECK if IS SUCCESS
+             */
+
+
+            /**
+             * **** IF SUCCESS IN API CHECK
+             */
+                System.out.println("******************* BOTH ARE SUCCESS ************************");
+                transactionRepository.setTransactionStateByTransactionId(transaction_id, state);
+                System.out.println("******************* After Update ************************");
+
+            /**
+             * ****** END IF
+             */
+            //*************************************************************************************
+            /**
+             * ELSE (NOT SUCCESS IN CHEK)
+             */
+                System.out.println("******************* INCOHERENCE STATE ************************");
+                state = "INCOHERENT";
+                transactionRepository.setTransactionStateByTransactionId(transaction_id, state);
+                System.out.println("******************* After Update ************************");
+            /**
+             * END IF
+             */
+
+        }else{
+            System.out.println("******************* Transaction FAILURE  ************************");
+            transactionRepository.setTransactionStateByTransactionId(transaction_id, state);
+            System.out.println("******************* After Update ************************");
+        }
 
     }
 }
