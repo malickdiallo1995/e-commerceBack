@@ -202,8 +202,6 @@ public class ReglementController {
     public String check_update(@RequestParam String transaction_id,@RequestParam String state) throws IOException {
         System.out.println("******************* Success Given Transaction_id : ["+transaction_id+"]");
         System.out.println("******************* Success Given state : ["+state+"]");
-        if (state == "SUCCESS"){ //STATE == SUCCESS
-            System.out.println("******************* Transaction SUCCESS  ************************");
             OkHttpClient client = new OkHttpClient().newBuilder()
                     .build();
             Request request = new Request.Builder()
@@ -230,15 +228,18 @@ public class ReglementController {
                     JSONObject jsonObject = new JSONObject(jsonData);
                     System.out.println("jsonObject status payment get" + jsonObject.getJSONObject("payment").getString("status"));
                     String status = jsonObject.getJSONObject("payment").getString("status");
-                    if (status == "SUCCESS"){ //IF SUCCESS IN API CHECK
+                    String currency = jsonObject.getString("currency");
+                    String created_at = jsonObject.getString("createdAt");
+                    String channel = jsonObject.getJSONObject("payment").getString("channel");
+                    if (status.compareTo(state) == 0){ //IF SUCCESS IN API CHECK
                         System.out.println("******************* BOTH ARE SUCCESS ************************");
-                        transactionRepository.setTransactionStateByTransactionId(transaction_id, state);
+                        transactionRepository.setTransactionStateByTransactionId(transaction_id, currency, channel, state);
                         System.out.println("******************* After Update ************************");
-                        return "PAYMENT SUCCESS OK";
-                    }else{ //ELSE (NOT SUCCESS IN CHEK || INCOHERENT)
+                        return "PAYMENT ["+ status +"]";
+                    }else { //ELSE (NOT SUCCESS IN CHEK || INCOHERENT)
                         System.out.println("******************* INCOHERENCE STATE ************************");
                         state = "INCOHERENT";
-                        transactionRepository.setTransactionStateByTransactionId(transaction_id, state);
+                        transactionRepository.setTransactionStateByTransactionId(transaction_id, currency, channel, state);
                         System.out.println("******************* After Update ************************");
                         return "PAYMENT SUCCESS INCOHERENT";
                     }
@@ -252,11 +253,5 @@ public class ReglementController {
                 System.out.println(e.getMessage());
                 return "Not ok";
             }
-        }else{ //STATE == FAILURE
-            System.out.println("******************* Transaction FAILURE  ************************");
-            transactionRepository.setTransactionStateByTransactionId(transaction_id, state);
-            System.out.println("******************* After Update ************************");
-            return "PAYMENT FAILURE";
-        }
     }
 }

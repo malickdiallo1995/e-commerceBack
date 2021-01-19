@@ -7,6 +7,6 @@ import org.springframework.data.jpa.repository.Query;
 
 public interface TransactionRepository extends JpaRepository <Transaction,Integer> {
     @Modifying
-    @Query("update Transaction t set t.status = ?2 where t.transaction_id = ?1 ")
-    void setTransactionStateByTransactionId(String transactionId, String status);
+    @Query("update Transaction t set t.status = ?4, t.currency = ?2, t.payment_options = ?3  where t.transaction_id = ?1 ")
+    void setTransactionStateByTransactionId(String transactionId,  String currency, String channel, String status);
 }
