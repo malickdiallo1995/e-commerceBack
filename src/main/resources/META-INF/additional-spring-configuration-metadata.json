@@ -1,0 +1,13 @@
+{
+  "properties": [
+    {
+      "name": "spring.jpa.dialect",
+      "type": "java.lang.String",
+      "description": "Description for spring.jpa.dialect."
+    },
+    {
+      "name": "security.basic.enable",
+      "type": "java.lang.String",
+      "description": "Description for security.basic.enable."
+    }
+  ] }
