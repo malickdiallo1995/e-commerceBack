@@ -203,10 +203,10 @@ public class ReglementController {
     public String check_update(@RequestParam String transaction_id, @RequestParam String state) throws IOException {
         System.out.println("******************* Success Given Transaction_id : [" + transaction_id + "]");
         System.out.println("******************* Success Given state : [" + state + "]");
-        return "ok";
+        return callPayGateApi(transaction_id, state);
     }
 
-    public String callPayGateApi(String transaction_id,String token, String state) throws IOException{
+    public String callPayGateApi(String transaction_id, String state) throws IOException{
 
         String transactionInfo = payGateCheckTransaction(transaction_id, null);
         try {
@@ -303,7 +303,8 @@ public class ReglementController {
     }
     public String payGateCheckTransaction(String transaction_id, String Token)  throws IOException{
         if(Token == null){
-            Token = "Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJjbGllbnRfaWQiOiIzODFiODNhNmUxY2FlMmE4MzBjMDg3ZjY4NmI5MDM5NiIsImlhdCI6MTYxMTE3MTk2MCwiZXhwIjoxNjExMjE1MTYwfQ.HSt3Jum6YizwYP7zBnke4PUQY9Y67aE_os4G2GonkISMDusUa6I55ASRw1Kk0NZTBfxVrtjEINpLCtI1Q6uiN3qD4qe-CgQ3xDhnLQ3m-HXRfPocIwsKhZ2J-dM0sebxnrrCAXgxD9q32yTqD-XlUO8-KMhc-3RUhRxkyt0Kc47PSNWu-h1GAAEOe2SIosq0Mq3fmsINrC_HLLmmrJ1fjZoYm_vPZPOCeIXpm11hyy2KBsxHP-KpveFgIzBzB6ie74up5JznT-7_goz7vHc33eWpGuchbXy0JYTbWWDC-2xJklz8O839GWnc62W2OTpjuRAcabOU0coTr5EOI69Tr9z4aOCWYlqtCX0RvMRym8ID54kBom89sVAOpbTpbtpoNpOHd77SfMFH-MAsZfEpbNp_NiXtpRjwlUOsGNHi7QTrHUni31rhTOAE_p51c7NrtUs6v5hQtBqA7bYlsw7n_FejXL1CsiU01GeDpuUgHLkZs2s1Gu8e44CIg3mPVG7roai-S7r0u1WiuU1xbdp7smncmikHJaKZ5VRYoTG-qpOUly4Fbt7kQzt-lpj65xFXJ60ef6qfYcZqp9Ux-8-oTrKHyuE5D3Lx9D7BJTrxBeVblMNg4ou_QJ3haykGudto2R-95gDuROb_M4xlp8-b3muDVW4VqSMtpwqqVJVNLtY";
+            Token = "33332";
+//            Token = "Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJjbGllbnRfaWQiOiIzODFiODNhNmUxY2FlMmE4MzBjMDg3ZjY4NmI5MDM5NiIsImlhdCI6MTYxMTE3MTk2MCwiZXhwIjoxNjExMjE1MTYwfQ.HSt3Jum6YizwYP7zBnke4PUQY9Y67aE_os4G2GonkISMDusUa6I55ASRw1Kk0NZTBfxVrtjEINpLCtI1Q6uiN3qD4qe-CgQ3xDhnLQ3m-HXRfPocIwsKhZ2J-dM0sebxnrrCAXgxD9q32yTqD-XlUO8-KMhc-3RUhRxkyt0Kc47PSNWu-h1GAAEOe2SIosq0Mq3fmsINrC_HLLmmrJ1fjZoYm_vPZPOCeIXpm11hyy2KBsxHP-KpveFgIzBzB6ie74up5JznT-7_goz7vHc33eWpGuchbXy0JYTbWWDC-2xJklz8O839GWnc62W2OTpjuRAcabOU0coTr5EOI69Tr9z4aOCWYlqtCX0RvMRym8ID54kBom89sVAOpbTpbtpoNpOHd77SfMFH-MAsZfEpbNp_NiXtpRjwlUOsGNHi7QTrHUni31rhTOAE_p51c7NrtUs6v5hQtBqA7bYlsw7n_FejXL1CsiU01GeDpuUgHLkZs2s1Gu8e44CIg3mPVG7roai-S7r0u1WiuU1xbdp7smncmikHJaKZ5VRYoTG-qpOUly4Fbt7kQzt-lpj65xFXJ60ef6qfYcZqp9Ux-8-oTrKHyuE5D3Lx9D7BJTrxBeVblMNg4ou_QJ3haykGudto2R-95gDuROb_M4xlp8-b3muDVW4VqSMtpwqqVJVNLtY";
         }
         OkHttpClient client = new OkHttpClient().newBuilder()
                 .build();
