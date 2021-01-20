@@ -172,5 +172,6 @@
     <orderEntry type="library" name="Maven: org.springframework:spring-beans:5.1.6.RELEASE" level="project" />
     <orderEntry type="library" name="Maven: org.apache.hadoop:hadoop-aws:3.1.2" level="project" />
     <orderEntry type="library" name="Maven: com.amazonaws:aws-java-sdk-bundle:1.11.271" level="project" />
+    <orderEntry type="library" name="Maven: javax.interceptor:javax.interceptor-api:1.2" level="project" />
   </component>
 </module>
