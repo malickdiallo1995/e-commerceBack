@@ -286,7 +286,6 @@ public class ReglementController {
                 .method("POST", body)
                 .addHeader("Content-Type", "application/json")
                 .addHeader("app_id", "$2a$10$wpM4MSm.Eu1gH.04Wz0YtO")
-                .addHeader("", "")
                 .addHeader("Authorization", "Basic MzgxYjgzYTZlMWNhZTJhODMwYzA4N2Y2ODZiOTAzOTY6JDJhJDEwJGFmalRKVllObUlnVmcuVTFPVGRJYU9JZkR5NGVSY2YuN09ILzJaZnRRd21UYjhOc1VWMHU2")
                 .addHeader("Cookie", "pga_session_id=s%3AtppsX4yXfEfnXHYnwWHpZBIIjsDb8_5L.Rl1RAZEFW%2Fgbchp2pJ%2FoY6LTdAfR3S2fhMipyaje9pU")
                 .build();
