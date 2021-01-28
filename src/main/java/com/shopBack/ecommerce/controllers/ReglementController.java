@@ -126,40 +126,61 @@ public class ReglementController {
 
     @PostMapping(value = "/transaction/create/bis", produces = "application/json")
     public String callAPI(@RequestBody Transaction transaction) throws IOException {
-        OkHttpClient client = new OkHttpClient().newBuilder()
-                .build();
-        MediaType mediaType = MediaType.parse("application/json");
-        okhttp3.RequestBody body = okhttp3.RequestBody.create(mediaType, "{\n    \"amount\": \"" + transaction.getPrice() + "\",\n    \"currency\": \"" + transaction.getCurrency() + "\",\n    \"payment_options\": \"" + transaction.getPayment_options() + "\",\n    \"order_ref\": \"" + transaction.getOrder_ref() + "\",\n    \"items\": " + transaction.getItems() + ",\n    \"cart\": [\n        {\n            \"product_name\": \"" + transaction.getProduct_name() + "\",\n            \"product_code\": \"" + transaction.getProduct_code() + "\",\n            \"quantity\": " + transaction.getQuantity() + ",\n            \"price\": \"" + transaction.getPrice() + "\",\n            \"total\": \"" + transaction.getTotal() + "\",\n            \"image\": \"\",\n            \"description\": \"\",\n            \"note_1\": \"\",\n            \"note_2\": \"\",\n            \"note_3\": \"\",\n            \"note_4\": \"\",\n            \"note_5\": \"\"\n        }]\n    }");
-        Request request = new Request.Builder()
-                .url("https://api.paygate.africa/transactions")
-                .method("POST", body)
-                .addHeader("app_id", "$2a$10$wpM4MSm.Eu1gH.04Wz0YtO") //dont change
-                .addHeader("refresh_token", "$2a$10$afjTJVYNmIgVg.U1OTdIaOyUhLEMnbrHxm3DpQcUAblaJizU.SViC") //dont change
-                .addHeader("Authorization", "Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJjbGllbnRfaWQiOiIzODFiODNhNmUxY2FlMmE4MzBjMDg3ZjY4NmI5MDM5NiIsImlhdCI6MTYxMTA5MzQyNCwiZXhwIjoxNjExMTM2NjI0fQ.VoOM4Mxfory7JkQB_Gj53hRCYIhdB_r8EfZh8gPFZw3_qnxgHGucTF6J9-e14aVLiqv2J7rGkXIiUGjOU_4nj2QsDlrp0ie8kmSdWKBIvZwE2J-RE8teD-gR7rKjzHpRoySkGr1ECGVeZUthbaYrHE7qdnpo_gVRHBAeVvM8qhmlPpPMswGKLjnXf8nIX8nhuWchr2D1loZ4g7CphONBlwr4Kg8e4rr9iWatQLgoYpagNtkXCp5Z9LZm8Q7ki6VAJkUrL888OfmS9L-9kSbqxujdRkClGIYgc9BTjQWTZlAYyXjSZ1T7Wwp7gosiHzHmI4ODphQnFVBssCycoEr0vjUqNs7JzlDNvGx_n0dOUpXiJ-7Gms0wzxMu_RrrGz5ovXaQ9qO7PlOpX7NkLxBuUg4VoJmoNVw18pSU4oHNWSBRWrc1rTG2I3matl9kgav2ZSe-_XGJHT208wSSiKVcbfwr7R-p5pVCTMkfWbmpmt-TtXtVo6Q_PXf7UMuYczKomEalxnsO3LhrHBc4-To74d6OuLizfLKzkNbOhUNgoVcGFWYRrKl6XQP9oSvIRN6U5yDRmCbMhmNqZp43FD2r68Imb0pEucAjvgx_YkcEIRN9t5NYY1YYFRkUfE5w4PErHBlWjneG05UMGWbQV0RbObWfJbRKSKI6SQwq7Do5gao")
-                .addHeader("Content-Type", "application/json")
-                .addHeader("Cookie", "pga_session_id=s%3Aw05PKI6cBTmy-Fqm1qPJHj32hwVlXggg.clzIIgVNHDkRLzQbTCxDWYx1RsDS2r7XdoxbTHDhvU4")
-                .build();
-        try (Response response = client.newCall(request).execute()) {
-            System.out.println("************** check Status reponse ************* ");
-            if (!response.isSuccessful()) {
-                System.out.println("************** Status reponse not Success ************* ");
-                System.out.println("************** Response body " + response.body().byteStream());
-                return response.body().string();
-                //throw new IOException("************* Unexpected code Not Success " + response.body().string());
-            }
+        String transactionInfo = payGateAddTransaction(transaction, null);
+        try {
+            JSONObject jsonObject = new JSONObject(transactionInfo);
+            if (jsonObject.has("message")) {
+                System.out.println("******************* Getting messsage in JSON DUE TO TOKEN");
+                String received_message = jsonObject.getString("message");
+                //if true then log in, reconnect app and relaunch request with good bearer token
+                if (received_message.compareTo("Access restricted ") == 0) {
+                    System.out.println("******************* ACCESS RESTRICTED GETTING NEW TOKEN");
+                    //logIn
+                    String newToken = ConnectAndGetToken();
+                    if (newToken != null) {
+                        System.out.println("******************* SEND REQUEST WITH NEW TOKEN");
+                        //relaunch payment with new token
+                        transactionInfo = payGateAddTransaction(transaction, newToken);
+                        if(transactionInfo.compareTo("ERROR WHILE ADDING NEW TRANSACTION") == 0){
+                            return transactionInfo;
+                        }
+                        jsonObject = new JSONObject(transactionInfo);
+                        System.out.println("jsonObject" + jsonObject.getString("transaction_id"));
+                        String transactionId = jsonObject.getString("transaction_id");
+                        String applicationId = jsonObject.getString("application_id");
+                        String captureUrl = jsonObject.getString("capture_url");
+                        /**
+                         * ********** Next Step Insert Into Database info above
+                         */
+                        System.out.println("********************Before Save in Transaction *****************");
+                        Transaction transaction1 = new Transaction();
+                        transaction1.setPrice(transaction.getPrice());
+                        transaction1.setTransaction_id(transactionId);
+                        transaction1.setUrl(captureUrl);
+                        transaction1.setApplication_id(applicationId);
+                        transaction1.setCurrency(transaction.getCurrency());
+                        transaction1.setItems(transaction.getItems());
+                        transaction1.setOrder_ref(transaction.getOrder_ref());
+                        transaction1.setPrice(transaction.getPrice());
+                        transaction1.setQuantity(transaction.getQuantity());
+                        transaction1.setTotal(transaction.getTotal());
+                        transaction1.setStatus("PENDING");
+                        System.out.println("transaction 1 : " + transaction1);
+                        transactionRepository.save(transaction1);
+                        System.out.println("******************** After save in Transaction *****************");
+                        return transactionInfo;
 
-            // Get response body
-            //System.out.println(response.body().string());
-            String jsonData = response.body().string();
-            try {
-                JSONObject jsonObject = new JSONObject(jsonData);
+                    } else {
+                        return "GET TOKEN ERROR";
+                    }
+                } else {
+                    return "UNKNOWN ERROR" + received_message;
+                }
+            }else {
                 System.out.println("jsonObject" + jsonObject.getString("transaction_id"));
                 String transactionId = jsonObject.getString("transaction_id");
                 String applicationId = jsonObject.getString("application_id");
                 String captureUrl = jsonObject.getString("capture_url");
-                /**
-                 * ********** Next Step Insert Into Database info above
-                 */
                 System.out.println("********************Before Save in Transaction *****************");
                 Transaction transaction1 = new Transaction();
                 transaction1.setPrice(transaction.getPrice());
@@ -176,17 +197,13 @@ public class ReglementController {
                 System.out.println("transaction 1 : " + transaction1);
                 transactionRepository.save(transaction1);
                 System.out.println("******************** After save in Transaction *****************");
-
-            } catch (JSONException e) {
-                System.out.println("******************* Error JSON ***************");
-                System.out.println(e.getMessage());
+                return transactionInfo;
             }
-            return jsonData;
-        } catch (IOException e) {
-            System.out.println("************** Error Message ************* ");
+            }catch (JSONException e){ //JSON PARSE ERROR
+            System.out.println("******************* Error JSON ***************");
             System.out.println(e.getMessage());
-            return "Not ok";
-        }
+            return "NOT OK JSON ERROR";
+            }
     }
 
     @GetMapping("/payments_success")
@@ -323,6 +340,33 @@ public class ReglementController {
             return response.body().string();
 //            return "HTTP ERROR";
             //throw new IOException("************* Unexpected code Not Success " + response.body().string());
+        }
+        return response.body().string();
+    }
+
+    public String payGateAddTransaction(Transaction transaction, String Token)  throws IOException{
+        if(Token == null){
+            Token = "33332";
+//            Token = "Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJjbGllbnRfaWQiOiIzODFiODNhNmUxY2FlMmE4MzBjMDg3ZjY4NmI5MDM5NiIsImlhdCI6MTYxMTE3MTk2MCwiZXhwIjoxNjExMjE1MTYwfQ.HSt3Jum6YizwYP7zBnke4PUQY9Y67aE_os4G2GonkISMDusUa6I55ASRw1Kk0NZTBfxVrtjEINpLCtI1Q6uiN3qD4qe-CgQ3xDhnLQ3m-HXRfPocIwsKhZ2J-dM0sebxnrrCAXgxD9q32yTqD-XlUO8-KMhc-3RUhRxkyt0Kc47PSNWu-h1GAAEOe2SIosq0Mq3fmsINrC_HLLmmrJ1fjZoYm_vPZPOCeIXpm11hyy2KBsxHP-KpveFgIzBzB6ie74up5JznT-7_goz7vHc33eWpGuchbXy0JYTbWWDC-2xJklz8O839GWnc62W2OTpjuRAcabOU0coTr5EOI69Tr9z4aOCWYlqtCX0RvMRym8ID54kBom89sVAOpbTpbtpoNpOHd77SfMFH-MAsZfEpbNp_NiXtpRjwlUOsGNHi7QTrHUni31rhTOAE_p51c7NrtUs6v5hQtBqA7bYlsw7n_FejXL1CsiU01GeDpuUgHLkZs2s1Gu8e44CIg3mPVG7roai-S7r0u1WiuU1xbdp7smncmikHJaKZ5VRYoTG-qpOUly4Fbt7kQzt-lpj65xFXJ60ef6qfYcZqp9Ux-8-oTrKHyuE5D3Lx9D7BJTrxBeVblMNg4ou_QJ3haykGudto2R-95gDuROb_M4xlp8-b3muDVW4VqSMtpwqqVJVNLtY";
+        }
+        OkHttpClient client = new OkHttpClient().newBuilder()
+                .build();
+        MediaType mediaType = MediaType.parse("application/json");
+        okhttp3.RequestBody body = okhttp3.RequestBody.create(mediaType, "{\n    \"amount\": \"" + transaction.getPrice() + "\",\n    \"currency\": \"" + transaction.getCurrency() + "\",\n    \"payment_options\": \"" + transaction.getPayment_options() + "\",\n    \"order_ref\": \"" + transaction.getOrder_ref() + "\",\n    \"items\": " + transaction.getItems() + ",\n    \"cart\": [\n        {\n            \"product_name\": \"" + transaction.getProduct_name() + "\",\n            \"product_code\": \"" + transaction.getProduct_code() + "\",\n            \"quantity\": " + transaction.getQuantity() + ",\n            \"price\": \"" + transaction.getPrice() + "\",\n            \"total\": \"" + transaction.getTotal() + "\",\n            \"image\": \"\",\n            \"description\": \"\",\n            \"note_1\": \"\",\n            \"note_2\": \"\",\n            \"note_3\": \"\",\n            \"note_4\": \"\",\n            \"note_5\": \"\"\n        }]\n    }");
+        Request request = new Request.Builder()
+                .url("https://api.paygate.africa/transactions")
+                .method("POST", body)
+                .addHeader("app_id", "$2a$10$wpM4MSm.Eu1gH.04Wz0YtO") //dont change
+                .addHeader("refresh_token", "$2a$10$afjTJVYNmIgVg.U1OTdIaOyUhLEMnbrHxm3DpQcUAblaJizU.SViC") //dont change
+                .addHeader("Authorization", Token)
+                .addHeader("Content-Type", "application/json")
+                .addHeader("Cookie", "pga_session_id=s%3Aw05PKI6cBTmy-Fqm1qPJHj32hwVlXggg.clzIIgVNHDkRLzQbTCxDWYx1RsDS2r7XdoxbTHDhvU4")
+                .build();
+        Response response = client.newCall(request).execute();
+        if (!response.isSuccessful()){
+            System.out.println("************** Status reponse not Success ************* ");
+            System.out.println("************** Response body "+response.body().byteStream());
+            return "ERROR WHILE ADDING NEW TRANSACTION";
         }
         return response.body().string();
     }
