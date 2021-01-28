@@ -126,7 +126,9 @@ public class ReglementController {
 
     @PostMapping(value = "/transaction/create/bis", produces = "application/json")
     public String callAPI(@RequestBody Transaction transaction) throws IOException {
+        System.out.println("**********Request Body"+transaction);
         String transactionInfo = payGateAddTransaction(transaction, null);
+       // System.out.println("********* transaction info "+transactionInfo.string());
         try {
             JSONObject jsonObject = new JSONObject(transactionInfo);
             if (jsonObject.has("message")) {
@@ -141,11 +143,11 @@ public class ReglementController {
                         System.out.println("******************* SEND REQUEST WITH NEW TOKEN");
                         //relaunch payment with new token
                         transactionInfo = payGateAddTransaction(transaction, newToken);
-                        if(transactionInfo.compareTo("ERROR WHILE ADDING NEW TRANSACTION") == 0){
-                            return transactionInfo;
-                        }
+                        System.out.println("transaction Info "+transactionInfo);
                         jsonObject = new JSONObject(transactionInfo);
-                        System.out.println("jsonObject" + jsonObject.getString("transaction_id"));
+                        //System.out.println("Json Object : ");
+                        System.out.println(jsonObject.toString());
+                        System.out.println("jsonObject" + jsonObject);
                         String transactionId = jsonObject.getString("transaction_id");
                         String applicationId = jsonObject.getString("application_id");
                         String captureUrl = jsonObject.getString("capture_url");
@@ -345,6 +347,7 @@ public class ReglementController {
     }
 
     public String payGateAddTransaction(Transaction transaction, String Token)  throws IOException{
+
         if(Token == null){
             Token = "33332";
 //            Token = "Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJjbGllbnRfaWQiOiIzODFiODNhNmUxY2FlMmE4MzBjMDg3ZjY4NmI5MDM5NiIsImlhdCI6MTYxMTE3MTk2MCwiZXhwIjoxNjExMjE1MTYwfQ.HSt3Jum6YizwYP7zBnke4PUQY9Y67aE_os4G2GonkISMDusUa6I55ASRw1Kk0NZTBfxVrtjEINpLCtI1Q6uiN3qD4qe-CgQ3xDhnLQ3m-HXRfPocIwsKhZ2J-dM0sebxnrrCAXgxD9q32yTqD-XlUO8-KMhc-3RUhRxkyt0Kc47PSNWu-h1GAAEOe2SIosq0Mq3fmsINrC_HLLmmrJ1fjZoYm_vPZPOCeIXpm11hyy2KBsxHP-KpveFgIzBzB6ie74up5JznT-7_goz7vHc33eWpGuchbXy0JYTbWWDC-2xJklz8O839GWnc62W2OTpjuRAcabOU0coTr5EOI69Tr9z4aOCWYlqtCX0RvMRym8ID54kBom89sVAOpbTpbtpoNpOHd77SfMFH-MAsZfEpbNp_NiXtpRjwlUOsGNHi7QTrHUni31rhTOAE_p51c7NrtUs6v5hQtBqA7bYlsw7n_FejXL1CsiU01GeDpuUgHLkZs2s1Gu8e44CIg3mPVG7roai-S7r0u1WiuU1xbdp7smncmikHJaKZ5VRYoTG-qpOUly4Fbt7kQzt-lpj65xFXJ60ef6qfYcZqp9Ux-8-oTrKHyuE5D3Lx9D7BJTrxBeVblMNg4ou_QJ3haykGudto2R-95gDuROb_M4xlp8-b3muDVW4VqSMtpwqqVJVNLtY";
@@ -353,20 +356,25 @@ public class ReglementController {
                 .build();
         MediaType mediaType = MediaType.parse("application/json");
         okhttp3.RequestBody body = okhttp3.RequestBody.create(mediaType, "{\n    \"amount\": \"" + transaction.getPrice() + "\",\n    \"currency\": \"" + transaction.getCurrency() + "\",\n    \"payment_options\": \"" + transaction.getPayment_options() + "\",\n    \"order_ref\": \"" + transaction.getOrder_ref() + "\",\n    \"items\": " + transaction.getItems() + ",\n    \"cart\": [\n        {\n            \"product_name\": \"" + transaction.getProduct_name() + "\",\n            \"product_code\": \"" + transaction.getProduct_code() + "\",\n            \"quantity\": " + transaction.getQuantity() + ",\n            \"price\": \"" + transaction.getPrice() + "\",\n            \"total\": \"" + transaction.getTotal() + "\",\n            \"image\": \"\",\n            \"description\": \"\",\n            \"note_1\": \"\",\n            \"note_2\": \"\",\n            \"note_3\": \"\",\n            \"note_4\": \"\",\n            \"note_5\": \"\"\n        }]\n    }");
+        System.out.println("new Token"+Token);
+        System.out.println("{\n    \"amount\": \"" + transaction.getPrice() + "\",\n    \"currency\": \"" + transaction.getCurrency() + "\",\n    \"payment_options\": \"" + transaction.getPayment_options() + "\",\n    \"order_ref\": \"" + transaction.getOrder_ref() + "\",\n    \"items\": " + transaction.getItems() + ",\n    \"cart\": [\n        {\n            \"product_name\": \"" + transaction.getProduct_name() + "\",\n            \"product_code\": \"" + transaction.getProduct_code() + "\",\n            \"quantity\": " + transaction.getQuantity() + ",\n            \"price\": \"" + transaction.getPrice() + "\",\n            \"total\": \"" + transaction.getTotal() + "\",\n            \"image\": \"\",\n            \"description\": \"\",\n            \"note_1\": \"\",\n            \"note_2\": \"\",\n            \"note_3\": \"\",\n            \"note_4\": \"\",\n            \"note_5\": \"\"\n        }]\n    }");
         Request request = new Request.Builder()
                 .url("https://api.paygate.africa/transactions")
                 .method("POST", body)
                 .addHeader("app_id", "$2a$10$wpM4MSm.Eu1gH.04Wz0YtO") //dont change
                 .addHeader("refresh_token", "$2a$10$afjTJVYNmIgVg.U1OTdIaOyUhLEMnbrHxm3DpQcUAblaJizU.SViC") //dont change
                 .addHeader("Authorization", Token)
+                .addHeader("mode","dev")
                 .addHeader("Content-Type", "application/json")
                 .addHeader("Cookie", "pga_session_id=s%3Aw05PKI6cBTmy-Fqm1qPJHj32hwVlXggg.clzIIgVNHDkRLzQbTCxDWYx1RsDS2r7XdoxbTHDhvU4")
                 .build();
         Response response = client.newCall(request).execute();
+
         if (!response.isSuccessful()){
+            //System.out.println(response.body().string());
             System.out.println("************** Status reponse not Success ************* ");
-            System.out.println("************** Response body "+response.body().byteStream());
-            return "ERROR WHILE ADDING NEW TRANSACTION";
+            //System.out.println("************** Response body "+response.body().byteStream());
+            return response.body().string();
         }
         return response.body().string();
     }
