@@ -34,17 +34,16 @@ public class LigneCommande extends BaseEntity{
     @NotNull(message = "Le date de commande est obligatoire")
     private Timestamp date;
 
-
     private int idmodeReglement;
-
 
     private int clientIdClient;
 
-
     private int idForfait;
 
+    @NotNull(message = "l'id de la commande est obligatoire")
+    private int idCommande;
 
-    private int idOffre;
-
+    @NotNull(message = "contient forfait?")
+    private boolean containforfait;
 
 }

@@ -59,7 +59,6 @@ public class LigneCommandeServiceImpl implements LigneCommandeService {
             LigneCommandeRepository.save(LigneCommande);
             LigneCommande.setId(id);
         } else {
-            // AndriceOffer absent => no update
             log.info("LigneCommande with id = {} cannot found in the database", LigneCommande.getId());
         }
     }

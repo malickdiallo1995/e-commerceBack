@@ -8,6 +8,7 @@
       </database-info>
       <case-sensitivity plain-identifiers="exact" quoted-identifiers="exact" />
       <user-name>root</user-name>
+      <schema-mapping />
     </data-source>
     <data-source name="e-commerce@localhost" uuid="82c9988e-83cf-45b8-8057-5f6e02a0d9a2">
       <database-info product="MariaDB" version="10.4.14-MariaDB" jdbc-version="4.2" driver-name="MariaDB Connector/J" driver-version="2.6.0" dbms="MARIADB" exact-version="10.4.14" exact-driver-version="2.6">
@@ -17,6 +18,7 @@
       <case-sensitivity plain-identifiers="lower" quoted-identifiers="lower" />
       <secret-storage>master_key</secret-storage>
       <user-name>root</user-name>
+      <schema-mapping />
     </data-source>
   </component>
 </project>
