@@ -31,4 +31,6 @@ public class Transaction extends BaseEntity  {
     private  String url;
     private  String application_id;
     private  String status;
+    @NotNull(message = "L'id de la commande est onligatoire")
+    private int idCommande;
 }

@@ -15,7 +15,7 @@ public class Commande extends BaseEntity{
     @NotNull(message = "Le date de commande est obligatoire")
     private Double prix_total;
     @NotNull(message = "Le date de commande est obligatoire")
-    private Timestamp dateCommande;
+    private String dateCommande;
     @NotNull
     private String statutCommande;
 }

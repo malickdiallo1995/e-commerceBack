@@ -50,18 +50,13 @@ public class LigneCommandeController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<Object> postLigneCommande(@Valid @RequestBody LigneCommande ligneCommande) {
+    public LigneCommande postLigneCommande(@Valid @RequestBody LigneCommande ligneCommande) {
         this.ligneCommande = ligneCommandeService.save(ligneCommande);
         if (this.ligneCommande != null) {
-            URI location = ServletUriComponentsBuilder
-                    .fromCurrentRequest()
-                    .path("/{id}")
-                    .buildAndExpand(this.ligneCommande.getId())
-                    .toUri();
-            return ResponseEntity.created(location).build();
+            return this.ligneCommande;
         } else {
             log.info("LigneCommande is already existing or null");
-            return ResponseEntity.unprocessableEntity().build();
+            return null;
         }
 
     }

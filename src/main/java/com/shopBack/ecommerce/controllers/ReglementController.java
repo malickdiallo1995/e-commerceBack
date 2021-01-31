@@ -166,6 +166,7 @@ public class ReglementController {
                         transaction1.setPrice(transaction.getPrice());
                         transaction1.setQuantity(transaction.getQuantity());
                         transaction1.setTotal(transaction.getTotal());
+                        transaction1.setIdCommande(transaction.getIdCommande());
                         transaction1.setStatus("PENDING");
                         System.out.println("transaction 1 : " + transaction1);
                         transactionRepository.save(transaction1);
@@ -192,6 +193,7 @@ public class ReglementController {
                 transaction1.setCurrency(transaction.getCurrency());
                 transaction1.setItems(transaction.getItems());
                 transaction1.setOrder_ref(transaction.getOrder_ref());
+                transaction1.setIdCommande(transaction.getIdCommande());
                 transaction1.setPrice(transaction.getPrice());
                 transaction1.setQuantity(transaction.getQuantity());
                 transaction1.setTotal(transaction.getTotal());

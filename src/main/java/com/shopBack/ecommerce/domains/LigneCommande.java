@@ -32,7 +32,7 @@ public class LigneCommande extends BaseEntity{
     private Integer nbMoisEngagement;
 
     @NotNull(message = "Le date de commande est obligatoire")
-    private Timestamp date;
+    private String date;
 
     private int idmodeReglement;
 
@@ -43,7 +43,10 @@ public class LigneCommande extends BaseEntity{
     @NotNull(message = "l'id de la commande est obligatoire")
     private int idCommande;
 
-    @NotNull(message = "contient forfait?")
+    @NotNull(message = "la commande contient-elle un forfait ? Ce champs est obligatoire")
     private boolean containforfait;
+
+    @NotNull(message = "la quantité est obligatoire")
+    private int quantity;
 
 }

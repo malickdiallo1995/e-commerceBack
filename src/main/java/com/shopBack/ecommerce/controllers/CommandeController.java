@@ -17,7 +17,7 @@ import java.util.List;
 
 @RestController
 @CrossOrigin(origins = "*")
-@RequestMapping("/api/commande")
+@RequestMapping("/api/commandes")
 public class CommandeController {
 
     private CommandeService commandeService;
@@ -51,18 +51,13 @@ public class CommandeController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<Object> postCommande(@Valid @RequestBody Commande commande) {
+    public Commande postCommande(@Valid @RequestBody Commande commande) {
         this.commande = commandeService.save(commande);
         if (this.commande != null) {
-            URI location = ServletUriComponentsBuilder
-                    .fromCurrentRequest()
-                    .path("/{id}")
-                    .buildAndExpand(this.commande.getId())
-                    .toUri();
-            return ResponseEntity.created(location).build();
+            return this.commande;
         } else {
             log.info("commande is already existing or null");
-            return ResponseEntity.unprocessableEntity().build();
+            return null;
         }
     }
 
