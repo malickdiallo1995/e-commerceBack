@@ -17,7 +17,7 @@ public class TransactionWraper {
     private String selected_payment_way;
     private String amount;
     private String currency;
-    private String payment_option;
+    private String payment_options;
     private String order_ref;
     private String items;
     private List<Cart> cart;

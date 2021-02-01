@@ -223,13 +223,13 @@ public class ReglementController {
         transaction.setItems(transactionWraper.getItems());
         transaction.setOrder_ref(transactionWraper.getOrder_ref());
         transaction.setStatus("PENDING");
-        transaction.setPayment_options(transactionWraper.getPayment_option());
+        transaction.setPayment_options(transactionWraper.getPayment_options());
         transaction.setDate(transactionWraper.getDate());
         transaction.setAmount(transactionWraper.getAmount());
         transaction.setStatus_commande("INIT");
         System.out.println("~~~~~~~~~~~~~~~~~~~~ BEFORE SAVING TRANSACTION ~~~~~~~~~~~~~~~~~~~~~~~");
 
-        transaction = this.transactionService.save(transaction);
+        transaction = this.transactionRepository.save(transaction);
 
         if(transaction != null){
             System.out.println("~~~~~~~~~~~~~~~~~~~~TRANSACTION SAVED~~~~~~~~~~~~~~~~~~~~~~~");
@@ -273,7 +273,7 @@ public class ReglementController {
                 if(ligne_commande == null){
                     System.out.println("~~~~~~~~~~~~~~~~~~~~ERROR WHILE SAVING LIGNE COMMANDE~~~~~~~~~~~~~~~~~~~~~~~");
 
-                    this.transactionService.deleteById(transaction.getId());
+                    this.transactionRepository.deleteById(transaction.getId());
                     return "Error while adding order details";
                 }
                 System.out.println("~~~~~~~~~~~~~~~~~~~~LIGNE COMMANDE SAVED~~~~~~~~~~~~~~~~~~~~~~~");
@@ -310,7 +310,7 @@ public class ReglementController {
                                  */
                                 transaction.setTransaction_id(transactionId);
                                 transaction.setUrl(captureUrl);
-                                this.transactionService.update(transaction, transaction.getId());
+                                this.transactionRepository.save(transaction);
                                 return transactionInfo;
 
                             } else {
@@ -326,7 +326,7 @@ public class ReglementController {
                         String captureUrl = jsonObject.getString("capture_url");
                         transaction.setTransaction_id(transactionId);
                         transaction.setUrl(captureUrl);
-                        this.transactionService.update(transaction, transaction.getId());
+                        this.transactionRepository.save(transaction);
                         return transactionInfo;
 
                     }
