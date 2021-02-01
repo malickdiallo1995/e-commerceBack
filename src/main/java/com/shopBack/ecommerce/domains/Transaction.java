@@ -1,5 +1,6 @@
 package com.shopBack.ecommerce.domains;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -8,6 +9,7 @@ import lombok.Setter;
 import javax.persistence.Entity;
 import javax.validation.constraints.NotNull;
 import java.sql.Timestamp;
+import java.util.List;
 
 @Entity
 @Getter
@@ -33,4 +35,5 @@ public class Transaction extends BaseEntity  {
     private  String status;
     @NotNull(message = "L'id de la commande est onligatoire")
     private int idCommande;
+
 }

@@ -9,6 +9,7 @@ import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import com.shopBack.ecommerce.domains.Reglement;
 import com.shopBack.ecommerce.domains.Transaction;
+import com.shopBack.ecommerce.repositories.CommandeRepository;
 import com.shopBack.ecommerce.repositories.TransactionRepository;
 import com.shopBack.ecommerce.services.Impl.TransactionImpl;
 import com.shopBack.ecommerce.services.ReglementService;
@@ -41,6 +42,8 @@ public class ReglementController {
     private Transaction transaction;
     @Autowired
     private TransactionRepository transactionRepository;
+    @Autowired
+    private CommandeRepository commandeRepository;
 
     @Autowired
     public ReglementController(ReglementService reglementService) {
@@ -218,6 +221,13 @@ public class ReglementController {
         System.out.println("******************* Failure Given Transaction_id : [" + transaction_id + "]");
     }
 
+    /**
+     * Update Transaction after payment
+     * @param transaction_id
+     * @param state
+     * @return
+     * @throws IOException
+     */
     @GetMapping("/transaction/check_update")
     public String check_update(@RequestParam String transaction_id, @RequestParam String state) throws IOException {
         System.out.println("******************* Success Given Transaction_id : [" + transaction_id + "]");
@@ -225,6 +235,13 @@ public class ReglementController {
         return callPayGateApi(transaction_id, state);
     }
 
+    /**
+     *
+     * @param transaction_id
+     * @param state
+     * @return
+     * @throws IOException
+     */
     public String callPayGateApi(String transaction_id, String state) throws IOException{
 
         String transactionInfo = payGateCheckTransaction(transaction_id, null);
@@ -251,14 +268,12 @@ public class ReglementController {
                         String channel = jsonObject.getJSONObject("payment").getString("channel");
                         if (status.compareTo(state) == 0){ //IF SUCCESS IN API CHECK
                             System.out.println("******************* BOTH ARE SUCCESS ************************");
-                            transactionRepository.setTransactionStateByTransactionId(transaction_id, currency, channel, state);
-                            System.out.println("******************* After Update ************************");
+                            this.UpdateTableAfterTransactionCallBack( transaction_id, currency, channel, state);
                             return "PAYMENT ["+ status +"]";
                         }else { //ELSE (NOT SUCCESS IN CHEK || INCOHERENT)
                             System.out.println("******************* INCOHERENCE STATE ************************");
                             state = "INCOHERENT";
-                            transactionRepository.setTransactionStateByTransactionId(transaction_id, currency, channel, state);
-                            System.out.println("******************* After Update ************************");
+                            this.UpdateTableAfterTransactionCallBack( transaction_id, currency, channel, state);
                             return "PAYMENT SUCCESS INCOHERENT";
                         }
 
@@ -277,14 +292,12 @@ public class ReglementController {
                 String channel = jsonObject.getJSONObject("payment").getString("channel");
                 if (status.compareTo(state) == 0){ //IF SUCCESS IN API CHECK
                     System.out.println("******************* BOTH ARE SUCCESS ************************");
-                    transactionRepository.setTransactionStateByTransactionId(transaction_id, currency, channel, state);
-                    System.out.println("******************* After Update ************************");
+                    this.UpdateTableAfterTransactionCallBack( transaction_id, currency, channel, state);
                     return "PAYMENT ["+ status +"]";
                 }else { //ELSE (NOT SUCCESS IN CHEK || INCOHERENT)
                     System.out.println("******************* INCOHERENCE STATE ************************");
                     state = "INCOHERENT";
-                    transactionRepository.setTransactionStateByTransactionId(transaction_id, currency, channel, state);
-                    System.out.println("******************* After Update ************************");
+                    this.UpdateTableAfterTransactionCallBack( transaction_id, currency, channel, state);
                     return "PAYMENT SUCCESS INCOHERENT";
                 }
             }
@@ -319,6 +332,14 @@ public class ReglementController {
             return null;
         }
     }
+
+    /**
+     * Check transaction state in paygate
+     * @param transaction_id
+     * @param Token
+     * @return
+     * @throws IOException
+     */
     public String payGateCheckTransaction(String transaction_id, String Token)  throws IOException{
         if(Token == null){
             Token = "33332";
@@ -346,6 +367,13 @@ public class ReglementController {
         return response.body().string();
     }
 
+    /**
+     * Call API Paygate To Add Transaction
+     * @param transaction
+     * @param Token
+     * @return
+     * @throws IOException
+     */
     public String payGateAddTransaction(Transaction transaction, String Token)  throws IOException{
 
         if(Token == null){
@@ -377,6 +405,22 @@ public class ReglementController {
             return response.body().string();
         }
         return response.body().string();
+    }
+
+    /**
+     * Update Tables after transaction Payment Callback
+     * @param transaction_id
+     * @param currency
+     * @param channel
+     * @param state
+     */
+    public void UpdateTableAfterTransactionCallBack(String transaction_id,String currency,String channel,String state){
+        transactionRepository.setTransactionStateByTransactionId(transaction_id, currency, channel, state);
+        System.out.println("Get Commande by Transaction ID");
+        Transaction transactionGet = transactionRepository.findTransactionByTransaction_id(transaction_id);
+        System.out.println("Id Commande recuperer : "+transactionGet.getIdCommande());
+        commandeRepository.setCommandeStateByCommandeId(state,transactionGet.getIdCommande());
+        System.out.println("******************* After Update ************************");
     }
 }
 
