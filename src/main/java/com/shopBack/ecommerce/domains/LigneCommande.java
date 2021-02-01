@@ -17,13 +17,13 @@ import java.sql.Timestamp;
 public class LigneCommande extends BaseEntity{
 
     @NotNull(message = "Le prix du telephone est obligatoire")
-    private Double prixTelephone;
+    private String prixTelephone;
 
     @NotNull(message = "Le montant du forfait est obligatoire")
-    private Double montantForfait;
+    private String montantForfait;
 
     @NotNull(message = "Le total est obligatoire")
-    private Double total;
+    private String total;
 
     @NotNull(message = "Le type de contrat est obligatoire")
     private String engagement;
@@ -31,22 +31,25 @@ public class LigneCommande extends BaseEntity{
     @NotNull(message = "Le nombre de mois engagement est obligatoire")
     private Integer nbMoisEngagement;
 
-    @NotNull(message = "Le date de commande est obligatoire")
-    private String date;
-
     private int idmodeReglement;
 
     private int clientIdClient;
 
     private int idForfait;
 
-    @NotNull(message = "l'id de la commande est obligatoire")
-    private int idCommande;
+    @NotNull(message = "l'id de la transaction est obligatoire")
+    private int idTransaction;
 
     @NotNull(message = "la commande contient-elle un forfait ? Ce champs est obligatoire")
     private boolean containforfait;
 
     @NotNull(message = "la quantité est obligatoire")
     private int quantity;
+
+    @NotNull(message = "le product code est obligatoire")
+    private String product_code;
+
+    @NotNull(message = "le product name est obligatoire")
+    private String product_name;
 
 }

@@ -4,8 +4,8 @@ spring:
   datasource:
     username: root
     password: NBsuNANO57
-    #url: jdbc:mysql://vps52284.lws-hosting.com:3306/e-commerce?serverTimezone=UTC
-    url: jdbc:mysql://localhost:3306/e-commerce?serverTimezone=UTC
+    url: jdbc:mysql://vps52284.lws-hosting.com:3306/e-commerce?serverTimezone=UTC
+#    url: jdbc:mysql://localhost:3306/e-commerce?serverTimezone=UTC
   jackson:
     serialization:
       write_dates_as_timestamps: true

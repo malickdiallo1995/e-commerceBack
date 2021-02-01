@@ -20,20 +20,16 @@ public class Transaction extends BaseEntity  {
     private String currency;
     private String payment_options;
     private String order_ref;
-    private int items;
-    private String product_name;
-    private String product_code;
-    private String quantity;
-    @NotNull(message = "Le montant de la transaction est obligatoire")
-    private Double price;
+    private String items;
     @NotNull(message = "Le montant total de transaction est obligatoire")
-    private Double total;
-
+    private String amount;
     private String transaction_id;
     private  String url;
     private  String application_id;
     private  String status;
-    @NotNull(message = "L'id de la commande est onligatoire")
-    private int idCommande;
+    @NotNull(message = "La date de la commande est onligatoire")
+    private String date;
+    @NotNull(message = "Le status de la commande est onligatoire")
+    private String status_commande;
 
 }

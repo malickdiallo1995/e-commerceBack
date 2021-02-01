@@ -12,6 +12,9 @@ import java.util.List;
 @Getter
 @Setter
 public class TransactionWraper {
+    private String application_id;
+    private String date;
+    private String selected_payment_way;
     private String amount;
     private String currency;
     private String payment_option;
