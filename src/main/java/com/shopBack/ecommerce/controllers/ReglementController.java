@@ -7,8 +7,10 @@ import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
+import com.shopBack.ecommerce.domains.Cart;
 import com.shopBack.ecommerce.domains.Reglement;
 import com.shopBack.ecommerce.domains.Transaction;
+import com.shopBack.ecommerce.domains.TransactionWraper;
 import com.shopBack.ecommerce.repositories.CommandeRepository;
 import com.shopBack.ecommerce.repositories.TransactionRepository;
 import com.shopBack.ecommerce.services.Impl.TransactionImpl;
@@ -421,6 +423,15 @@ public class ReglementController {
         System.out.println("Id Commande recuperer : "+transactionGet.getIdCommande());
         commandeRepository.setCommandeStateByCommandeId(state,transactionGet.getIdCommande());
         System.out.println("******************* After Update ************************");
+    }
+
+    @PostMapping(value = "test",produces = "application/json")
+    public String testGetArray(@RequestBody TransactionWraper transactionWraper){
+        for(Cart cart: transactionWraper.getCart()){
+            System.out.println("******* cart");
+            System.out.println(cart.getProduct_name());
+        }
+        return "ok";
     }
 }
 
