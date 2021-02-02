@@ -1,6 +1,8 @@
 package com.shopBack.ecommerce.controllers;
 
 import com.amazonaws.services.iot.model.ResourceNotFoundException;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mashape.unirest.http.HttpResponse;
@@ -29,6 +31,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import javax.validation.Valid;
 import java.io.IOException;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -283,6 +286,7 @@ public class ReglementController {
             if(transactionWraper.getSelected_payment_way().compareTo("Mobile Money") == 0){
                 System.out.println("~~~~~~~~~~~~~~~~~~~~SENDING TO PAYGATE SAVED~~~~~~~~~~~~~~~~~~~~~~~");
                 String transactionInfo = this.payGateAddTransaction(transactionWraper, null);
+                System.out.println("******** transaction info "+transactionInfo);
                 try {
                     JSONObject jsonObject = new JSONObject(transactionInfo);
                     if (jsonObject.has("message")) {
@@ -516,29 +520,39 @@ public class ReglementController {
         OkHttpClient client = new OkHttpClient().newBuilder()
                 .build();
         MediaType mediaType = MediaType.parse("application/json");
-        System.out.println("TRANSACTIO JSON " + transaction.toString());
-        okhttp3.RequestBody body = okhttp3.RequestBody.create(mediaType, transaction.toString());
-        System.out.println("new Token"+Token);
-//        System.out.println("{\n    \"amount\": \"" + transaction.getAmount() + "\",\n    \"currency\": \"" + transaction.getCurrency() + "\",\n    \"payment_options\": \"" + transaction.getPayment_options() + "\",\n    \"order_ref\": \"" + transaction.getOrder_ref() + "\",\n    \"items\": " + transaction.getItems() + ",\n    \"cart\": [\n        {\n            \"product_name\": \"" + transaction.getProduct_name() + "\",\n            \"product_code\": \"" + transaction.getProduct_code() + "\",\n            \"quantity\": " + transaction.getQuantity() + ",\n            \"price\": \"" + transaction.getPrice() + "\",\n            \"total\": \"" + transaction.getTotal() + "\",\n            \"image\": \"\",\n            \"description\": \"\",\n            \"note_1\": \"\",\n            \"note_2\": \"\",\n            \"note_3\": \"\",\n            \"note_4\": \"\",\n            \"note_5\": \"\"\n        }]\n    }");
-        Request request = new Request.Builder()
-                .url("https://api.paygate.africa/transactions")
-//                .method("POST", body)
-                .addHeader("app_id", "$2a$10$wpM4MSm.Eu1gH.04Wz0YtO") //dont change
-                .addHeader("refresh_token", "$2a$10$afjTJVYNmIgVg.U1OTdIaOyUhLEMnbrHxm3DpQcUAblaJizU.SViC") //dont change
-                .addHeader("Authorization", Token)
-                .addHeader("mode","dev")
-                .addHeader("Content-Type", "application/json")
-                .addHeader("Cookie", "pga_session_id=s%3Aw05PKI6cBTmy-Fqm1qPJHj32hwVlXggg.clzIIgVNHDkRLzQbTCxDWYx1RsDS2r7XdoxbTHDhvU4")
-                .build();
-        Response response = client.newCall(request).execute();
+        //System.out.println("TRANSACTIO JSON " + transaction.toString());
+            ObjectMapper objectMapper = new ObjectMapper();
+            try{
+                String json = objectMapper.writeValueAsString(transaction);
+                System.out.println("ResultingJSONstring = " + json);
 
-        if (!response.isSuccessful()){
-            //System.out.println(response.body().string());
-            System.out.println("************** Status reponse not Success ************* ");
-            //System.out.println("************** Response body "+response.body().byteStream());
-            return response.body().string();
-        }
-        return response.body().string();
+               // String bodyJson = "{\"selected_payment_way\":\""+transaction.getSelected_payment_way()+"\",\"application_id\":\""+transaction.getApplication_id()+"\",\"date\":\""+transaction.getDate()+"\",\"amount\":"+transaction.getAmount()+",\"order_ref\":\""+transaction.getOrder_ref()+"\",\"currency\":\""+transaction.getCurrency()+"\",\"payment_options\":\""+transaction.getPayment_options()+"\",\"items\":"+transaction.getItems()+",\"cart\":[{\"product_name\":\"HUAWEI nova 5t\",\"product_code\":\"HUAWEInova5t20210201105529\",\"quantity\":1,\"price\":400000,\"total\":400000,\"image\":\"\",\"description\":\"Dimensions en mm (l * l * h) : 154,25 x 73,97 x 7,87\\nPoids : 174\\nNombre de couleurs : 16 M\\nType de résolution : 2340*1080\\nTaille diagonale : 6.26\\nSystème d'exploitation : Android\\nMémoire utilisateur : 128Go\",\"note_1\":\"\",\"note_2\":\"\",\"note_3\":\"\",\"note_4\":\"\",\"note_5\":\"\",\"forfait\":null},{\"product_name\":\"HUAWEI nova 5t\",\"product_code\":\"HUAWEInova5t20210201110311\",\"quantity\":1,\"price\":400000,\"total\":400000,\"image\":\"\",\"description\":\"Dimensions en mm (l * l * h) : 154,25 x 73,97 x 7,87\\nPoids : 174\\nNombre de couleurs : 16 M\\nType de résolution : 2340*1080\\nTaille diagonale : 6.26\\nSystème d'exploitation : Android\\nMémoire utilisateur : 128Go\",\"note_1\":\"\",\"note_2\":\"\",\"note_3\":\"\",\"note_4\":\"\",\"note_5\":\"\",\"forfait\":null}]}";
+                okhttp3.RequestBody body = okhttp3.RequestBody.create(mediaType, json);
+                System.out.println("new Token"+Token);
+//        System.out.println("{\n    \"amount\": \"" + transaction.getAmount() + "\",\n    \"currency\": \"" + transaction.getCurrency() + "\",\n    \"payment_options\": \"" + transaction.getPayment_options() + "\",\n    \"order_ref\": \"" + transaction.getOrder_ref() + "\",\n    \"items\": " + transaction.getItems() + ",\n    \"cart\": [\n        {\n            \"product_name\": \"" + transaction.getProduct_name() + "\",\n            \"product_code\": \"" + transaction.getProduct_code() + "\",\n            \"quantity\": " + transaction.getQuantity() + ",\n            \"price\": \"" + transaction.getPrice() + "\",\n            \"total\": \"" + transaction.getTotal() + "\",\n            \"image\": \"\",\n            \"description\": \"\",\n            \"note_1\": \"\",\n            \"note_2\": \"\",\n            \"note_3\": \"\",\n            \"note_4\": \"\",\n            \"note_5\": \"\"\n        }]\n    }");
+                Request request = new Request.Builder()
+                        .url("https://api.paygate.africa/transactions")
+                        .method("POST", body)
+                        .addHeader("app_id", "$2a$10$wpM4MSm.Eu1gH.04Wz0YtO") //dont change
+                        .addHeader("refresh_token", "$2a$10$afjTJVYNmIgVg.U1OTdIaOyUhLEMnbrHxm3DpQcUAblaJizU.SViC") //dont change
+                        .addHeader("Authorization", Token)
+                        .addHeader("mode","dev")
+                        .addHeader("Content-Type", "application/json")
+                        .addHeader("Cookie", "pga_session_id=s%3Aw05PKI6cBTmy-Fqm1qPJHj32hwVlXggg.clzIIgVNHDkRLzQbTCxDWYx1RsDS2r7XdoxbTHDhvU4")
+                        .build();
+                Response response = client.newCall(request).execute();
+
+                if (!response.isSuccessful()){
+                    //System.out.println(response.body().string());
+                    System.out.println("************** Status reponse not Success ************* ");
+                    //System.out.println("************** Response body "+response.body().byteStream());
+                    return response.body().string();
+                }
+                return response.body().string();
+            }catch (JsonProcessingException e){
+            System.out.println(e.getMessage());
+            return "Error JSON";
+            }
     }
 //
 //    /**
